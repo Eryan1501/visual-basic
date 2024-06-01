@@ -1,0 +1,121 @@
+Option Explicit
+Private Sub CMDBAYAR_Click()
+Application.ScreenUpdating = False
+'Perintah untuk menentukan nama tempat simpan data
+Dim Status As Object
+Dim DBPEMBAYARAN As Object
+'Perintah membuat tempat simpan data
+Set DBPEMBAYARAN = Sheet6.Range("A900000").End(xlUp)
+Set Status = Sheet5.Range("B6:B800000").Find(WHAT:=Me.TXTKODE.Value, LookIn:=xlValues)
+
+'Perintah untuk menentukan Data inti / tambahan
+If Me.TXTKODE.Value = "" _
+Or Me.TXTKODEPELANGGAN.Value = "" _
+Or Me.TXTNAMA.Value = "" _
+Or Me.TXTLAYANAN.Value = "" _
+Or Me.TXTHARGA.Value = "" _
+Or Me.TXTPEMAKAIAN.Value = "" _
+Or Me.TXTTOTALBAYAR.Value = "" Then
+'Perintah memunculkan pesan jika data inti kosong
+Call MsgBox("Data pembayaran harus lengkap", vbInformation, "Pembayaran")
+'Perintah untuk menyimpan data pada tempat simpan data
+Else
+Select Case MsgBox("Anda akan melakukan pembayaran" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Bayar Tagihan")
+Case vbNo
+Exit Sub
+Case vbYes
+End Select
+DBPEMBAYARAN.Offset(1, 0).Value = "=ROW()-ROW($A$5)"
+DBPEMBAYARAN.Offset(1, 1).Value = Me.TXTKODE.Value
+DBPEMBAYARAN.Offset(1, 2).Value = Me.TXTKODEPELANGGAN.Value
+DBPEMBAYARAN.Offset(1, 3).Value = Me.TXTNAMA.Value
+DBPEMBAYARAN.Offset(1, 4).Value = Me.TXTLAYANAN.Value
+DBPEMBAYARAN.Offset(1, 5).Value = Me.TXTBULAN.Value
+DBPEMBAYARAN.Offset(1, 6).Value = Me.TXTTAHUN.Value
+DBPEMBAYARAN.Offset(1, 7).Value = Me.TXTHARGA.Value
+DBPEMBAYARAN.Offset(1, 8).Value = Me.TXTPEMAKAIAN.Value
+DBPEMBAYARAN.Offset(1, 9).Value = Me.TXTTOTALBAYAR.Value
+
+Status.Offset(0, 11).Value = "Lunas"
+Sheet4.PrintOut
+Call AmbilPembayaran
+Call MsgBox("Data pembayaran berhasil disimpan", vbInformation, "Pembayaran")
+FORMUTAMA.TPL.Caption = Sheet1.Range("D9").Value
+FORMUTAMA.TTGH.Caption = Sheet1.Range("D10").Value
+FORMUTAMA.TPMB.Caption = Sheet1.Range("D11").Value
+FORMUTAMA.TPMA.Caption = Sheet1.Range("D12").Value
+FORMUTAMA.TPM.Caption = Sheet1.Range("D13").Value
+'Perintah untuk membersihkan form
+Me.TXTKODE.Value = ""
+Me.TXTKODEPELANGGAN.Value = ""
+Me.TXTNAMA.Value = ""
+Me.TXTLAYANAN.Value = ""
+Me.TXTHARGA.Value = ""
+Me.TXTPEMAKAIAN.Value = ""
+Me.TXTTOTALBAYAR.Value = ""
+End If
+Unload Me
+End Sub
+Private Sub AmbilPembayaran()
+Dim DbBayar As Long
+Dim iRow As Long
+iRow = Sheet6.Range("A" & Rows.Count).End(xlUp).Row
+DbBayar = Application.WorksheetFunction.CountA(Sheet6.Range("B6:B90000"))
+If DbBayar = 0 Then
+FORMUTAMA.TABELTAGIHAN.RowSource = ""
+Else
+FORMUTAMA.TABELTAGIHAN.RowSource = "TAGIHAN!A6:J" & iRow
+End If
+End Sub
+
+Private Sub TXTAKHIR_Change()
+Sheet4.Range("C11").Value = Me.TXTAKHIR.Value
+
+End Sub
+
+Private Sub TXTAWAL_Change()
+Sheet4.Range("B11").Value = Me.TXTAWAL.Value
+
+End Sub
+
+Private Sub TXTBULAN_Change()
+Sheet4.Range("F7").Value = Me.TXTBULAN.Value
+End Sub
+
+Private Sub TXTHARGA_Change()
+Sheet4.Range("E11").Value = Me.TXTHARGA.Value
+End Sub
+
+Private Sub TXTKODE_Change()
+Sheet4.Range("D6").Value = Me.TXTKODE.Value
+End Sub
+
+Private Sub TXTLAYANAN_Change()
+On Error GoTo EXCELVBA
+Dim CariLayanan As Object
+Set CariLayanan = Sheet2.Range("B6:B700").Find(WHAT:=Me.TXTLAYANAN.Value, LookIn:=xlValues)
+Me.TXTHARGA.Value = CariLayanan.Offset(0, 1)
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, data pelanggan tidak terdafar", vbInformation, "Data Pelanggan")
+
+End Sub
+
+Private Sub TXTNAMA_Change()
+Sheet4.Range("D7").Value = Me.TXTNAMA.Value
+End Sub
+
+Private Sub TXTPEMAKAIAN_Change()
+Sheet4.Range("D11").Value = Me.TXTPEMAKAIAN.Value
+End Sub
+
+Private Sub TXTTAHUN_Change()
+Sheet4.Range("F6").Value = Me.TXTTAHUN.Value
+End Sub
+
+Private Sub TXTTOTALBAYAR_Change()
+Sheet4.Range("F11").Value = Me.TXTTOTALBAYAR.Value
+
+End Sub
