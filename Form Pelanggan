@@ -1,0 +1,106 @@
+Option Explicit
+
+Private Sub AmbilLayanan()
+Dim DbLayanan As Long
+Dim iRow As Long
+iRow = Sheet2.Range("A" & Rows.Count).End(xlUp).Row
+DbLayanan = Application.WorksheetFunction.CountA(Sheet2.Range("A6:A90000"))
+If DbLayanan = 0 Then
+Me.CMBLAYANAN.RowSource = ""
+Else
+Me.CMBLAYANAN.RowSource = "LAYANAN!B6:C" & iRow
+End If
+End Sub
+
+Private Sub CMDSAVE_Click()
+Application.ScreenUpdating = False
+'Perintah untuk menentukan nama tempat simpan data
+Dim DATAPELANGGAN As Object
+'Perintah membuat tempat simpan data
+Set DATAPELANGGAN = Sheet3.Range("A10000").End(xlUp)
+'Perintah untuk menentukan Data inti / tambahan
+If Me.TXTKODE.Value = "" _
+Or Me.TXTNAMA.Value = "" _
+Or Me.CMBLAYANAN.Value = "" _
+Or Me.TXTALAMAT.Value = "" _
+Or Me.TXTTELPON.Value = "" Then
+'Perintah memunculkan pesan jika data inti kosong
+Call MsgBox("Data input harus lengkap", vbInformation, "Data Pelanggan")
+'Perintah untuk menyimpan data pada tempat simpan data
+Else
+DATAPELANGGAN.Offset(1, 0).Value = "=ROW()-ROW($A$5)"
+DATAPELANGGAN.Offset(1, 1).Value = Me.TXTKODE.Value
+DATAPELANGGAN.Offset(1, 2).Value = Me.TXTNAMA.Value
+DATAPELANGGAN.Offset(1, 3).Value = Me.CMBLAYANAN.Value
+DATAPELANGGAN.Offset(1, 4).Value = Me.TXTALAMAT.Value
+DATAPELANGGAN.Offset(1, 5).Value = Me.TXTTELPON.Value
+DATAPELANGGAN.Offset(1, 6).Value = 0
+
+Call AmbilPelanggan
+Call MsgBox("Data surat berhasil disimpan", vbInformation, "Surat Masuk")
+
+FORMUTAMA.TPL.Caption = Sheet1.Range("D9").Value
+FORMUTAMA.TTGH.Caption = Sheet1.Range("D10").Value
+FORMUTAMA.TPMB.Caption = Sheet1.Range("D11").Value
+FORMUTAMA.TPMA.Caption = Sheet1.Range("D12").Value
+FORMUTAMA.TPM.Caption = Sheet1.Range("D13").Value
+
+'Perintah untuk membersihkan form
+Me.TXTKODE.Value = ""
+Me.TXTNAMA.Value = ""
+Me.CMBLAYANAN.Value = ""
+Me.TXTALAMAT.Value = ""
+Me.TXTTELPON.Value = ""
+Me.TXTMeteran.Value = ""
+Unload Me
+End If
+
+
+End Sub
+
+Private Sub CMDUPDATE_Click()
+Application.ScreenUpdating = False
+'Perintah membuat Sumber data yang diubah
+Dim UBAHDATA As Object
+'Perintah mengecek apakah ada data yang diubah
+If Me.TXTKODE.Value = "" Then
+Call MsgBox("Untuk mengubah Data, Pilih data terlebih dahulu", vbInformation, "Ubah Data")
+Else
+Set UBAHDATA = Sheet3.Range("B6:B900000").Find(WHAT:=Me.TXTKODE.Value, LookIn:=xlValues)
+
+'Perintah mengubah data dari kolom pertama
+UBAHDATA.Offset(0, 1).Value = Me.TXTNAMA.Value
+UBAHDATA.Offset(0, 2).Value = Me.CMBLAYANAN.Value
+UBAHDATA.Offset(0, 3).Value = Me.TXTALAMAT.Value
+UBAHDATA.Offset(0, 4).Value = Me.TXTTELPON.Value
+
+'Perintah memunculkan pesan bahwa data berhasil diubah
+Call MsgBox("Data berhasil diubah", vbInformation, "Ubah Data")
+
+'Perintah membersihkan textbox
+Me.TXTKODE.Value = ""
+Me.TXTNAMA.Value = ""
+Me.CMBLAYANAN.Value = ""
+Me.TXTALAMAT.Value = ""
+Me.TXTTELPON.Value = ""
+Me.TXTMeteran.Value = ""
+Sheet1.Select
+End If
+Unload Me
+
+End Sub
+Private Sub AmbilPelanggan()
+Dim DbPelanggan As Long
+Dim iRow As Long
+iRow = Sheet3.Range("A" & Rows.Count).End(xlUp).Row
+DbPelanggan = Application.WorksheetFunction.CountA(Sheet3.Range("A6:A90000"))
+If DbPelanggan = 0 Then
+FORMUTAMA.TABELPELANGGAN.RowSource = ""
+Else
+FORMUTAMA.TABELPELANGGAN.RowSource = "PELANGGAN!A6:G" & iRow
+End If
+End Sub
+Private Sub UserForm_Initialize()
+Call AmbilLayanan
+Me.TXTMeteran.Value = 0
+End Sub
