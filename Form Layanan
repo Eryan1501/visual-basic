@@ -1,0 +1,59 @@
+Option Explicit
+Private Sub CMDSAVE_Click()
+Dim DataLayanan As Object
+Set DataLayanan = Sheet2.Range("A1000").End(xlUp)
+If Me.CMDSAVE.Caption = "Tambah" Then
+If Me.TXTNAMA.Value = "" _
+Or Me.TXTTARIF.Value = "" Then
+Call MsgBox("Harap isi data layanan dengan lengkap", vbInformation, "Data Layanan")
+Else
+DataLayanan.Offset(1, 0).Value = "=Row()-Row($A$5)"
+DataLayanan.Offset(1, 1).Value = Me.TXTNAMA.Value
+DataLayanan.Offset(1, 2).Value = Me.TXTTARIF.Value
+Call AmbilLayanan
+Call MsgBox("Layanan berhasil ditambah", vbInformation, "Data Layanan")
+Me.TXTNAMA.Value = ""
+Me.TXTTARIF.Value = ""
+End If
+Else
+Call UpdateLayanan
+End If
+End Sub
+Private Sub AmbilLayanan()
+Dim DbLayanan As Long
+Dim iRow As Long
+iRow = Sheet2.Range("A" & Rows.Count).End(xlUp).Row
+DbLayanan = Application.WorksheetFunction.CountA(Sheet2.Range("A6:A90000"))
+If DbLayanan = 0 Then
+FORMUTAMA.TABELLAYANAN.RowSource = ""
+Else
+FORMUTAMA.TABELLAYANAN.RowSource = "LAYANAN!A6:C" & iRow
+End If
+End Sub
+
+Private Sub UpdateLayanan()
+Application.ScreenUpdating = False
+'Perintah membuat Sumber data yang diubah
+Dim UBAHDATA As Object
+'Perintah mengecek apakah ada data yang diubah
+If Me.TXTNAMA.Value = "" Then
+Call MsgBox("Untuk mengubah Data, Pilih data terlebih dahulu", vbInformation, "Ubah Data")
+Else
+Set UBAHDATA = Sheet2.Range("A6:A900000").Find(WHAT:=FORMUTAMA.TXTHAPUS1.Value, LookIn:=xlValues)
+
+'Perintah mengubah data dari kolom pertama
+UBAHDATA.Offset(0, 1).Value = Me.TXTNAMA.Value
+UBAHDATA.Offset(0, 2).Value = Me.TXTTARIF.Value
+
+'Perintah memunculkan pesan bahwa data berhasil diubah
+Call MsgBox("Data berhasil diubah", vbInformation, "Ubah Data")
+
+'Perintah membersihkan textbox
+Me.TXTNAMA.Value = ""
+Me.TXTTARIF.Value = ""
+FORMUTAMA.TXTHAPUS1.Value = ""
+Sheet1.Select
+End If
+Unload Me
+
+End Sub
