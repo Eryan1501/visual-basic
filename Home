@@ -1,0 +1,16 @@
+Me.TXTTARIF.Value = CariTarif.Offset(0, 1).Value
+
+Status.Offset(0, 8).Value = "Belum Bayar"
+
+Selection.EntireRow.Delete
+
+Me.TXTKODEBAYAR.Value = ""
+
+Call MsgBox("Data berhasil dihapus", vbInformation, "Hapus Data")
+
+Call AmbilPembayaran
+
+Sheet1.Select
+
+End If
+End sub
