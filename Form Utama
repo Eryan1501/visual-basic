@@ -1,0 +1,663 @@
+Option Explicit
+
+Private Sub CMDCARI1_Click()
+On Error GoTo Salah
+Dim iRow As Long
+Dim CariPelanggan As Object
+Set CariPelanggan = Sheet3
+Sheet7.Range("I4").Value = Me.CMBKRITERIA1.Value
+Sheet7.Range("I5").Value = Me.TXTKATAKUNCI1.Value
+Me.TABELPELANGGAN.Value = ""
+CariPelanggan.Range("A5").CurrentRegion.AdvancedFilter Action:=xlFilterCopy, CriteriaRange:= _
+Sheet7.Range("I4:I5"), CopyToRange:=Sheet7.Range("A4:G4"), Unique:=False
+iRow = Sheet7.Range("A" & Rows.Count).End(xlUp).Row
+If iRow > 1 Then
+Me.TABELPELANGGAN.RowSource = "CARIPELANGGAN!A5:G" & iRow
+Else
+Call MsgBox("Data tidak ditemukan", vbInformation, "Cari Data")
+End If
+Me.TXTTOTALDATA.Value = Me.TABELPELANGGAN.ListCount
+Exit Sub
+Salah:
+Call MsgBox("Maaf Data tidak ditemukan", vbInformation, "Cari Data")
+
+End Sub
+
+Private Sub CMDCARI2_Click()
+On Error GoTo Salah
+Dim iRow As Long
+Dim CariPemakaian As Object
+Set CariPemakaian = Sheet5
+Sheet8.Range("O4").Value = Me.CMBKRITERIA2.Value
+Sheet8.Range("O5").Value = Me.TXTKATAKUNCI2.Value
+Me.TABELPELANGGAN.Value = ""
+CariPemakaian.Range("A5").CurrentRegion.AdvancedFilter Action:=xlFilterCopy, CriteriaRange:= _
+Sheet8.Range("O4:O5"), CopyToRange:=Sheet8.Range("A4:M4"), Unique:=False
+iRow = Sheet8.Range("A" & Rows.Count).End(xlUp).Row
+If iRow > 1 Then
+Me.TABELPEMAKAIAN.RowSource = "CARIPEMAKAIAN!A5:M" & iRow
+Else
+Call MsgBox("Data tidak ditemukan", vbInformation, "Cari Data")
+End If
+Me.TXTTOTALDATA.Value = Me.TABELPEMAKAIAN.ListCount
+Exit Sub
+Salah:
+Call MsgBox("Maaf Data tidak ditemukan", vbInformation, "Cari Data")
+
+End Sub
+
+Private Sub CMDCARI3_Click()
+On Error GoTo Salah
+Dim iRow As Long
+Dim CariPembayaran As Object
+Set CariPembayaran = Sheet6
+Sheet9.Range("L4").Value = Me.CMBKRITERIA3.Value
+Sheet9.Range("L5").Value = Me.TXTKATAKUNCI3.Value
+Me.TABELPELANGGAN.Value = ""
+CariPembayaran.Range("A5").CurrentRegion.AdvancedFilter Action:=xlFilterCopy, CriteriaRange:= _
+Sheet9.Range("L4:L5"), CopyToRange:=Sheet9.Range("A4:J4"), Unique:=False
+iRow = Sheet9.Range("A" & Rows.Count).End(xlUp).Row
+If iRow > 1 Then
+Me.TABELTAGIHAN.RowSource = "CARITAGIHAN!A5:L" & iRow
+Else
+Call MsgBox("Data tidak ditemukan", vbInformation, "Cari Data")
+End If
+Me.TXTTOTALDATA.Value = Me.TABELTAGIHAN.ListCount
+Exit Sub
+Salah:
+Call MsgBox("Maaf Data tidak ditemukan", vbInformation, "Cari Data")
+
+End Sub
+
+Private Sub CMDCLEAR_Click()
+Select Case MsgBox("Anda menghapus semua informassi tentang Identitas Kantor" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Hapus Informasi")
+Case vbNo
+Exit Sub
+Case vbYes
+End Select
+Me.TXTNAMAKANTOR.Value = ""
+Me.TXTALAMAT.Value = ""
+Me.TXTTELPON.Value = ""
+Me.TXTEMAIL.Value = ""
+Me.TXTNAMAKANTOR.Enabled = True
+Me.TXTALAMAT.Enabled = True
+Me.TXTTELPON.Enabled = True
+Me.TXTEMAIL.Enabled = True
+
+End Sub
+
+Private Sub CMDDELETE1_Click()
+Application.ScreenUpdating = False
+Dim HapusData As Object
+Me.TABELPELANGGAN.Value = ""
+If Me.TXTKODEPELANGGAN.Value = "" Then
+Call MsgBox("Pilih data pada tabel data", vbInformation, "Hapus Data")
+Else
+'Membuat pesan konfirmasi hapus data
+Select Case MsgBox("Anda akan menghapus data" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Hapus data")
+Case vbNo
+Me.TXTKODEPELANGGAN.Value = ""
+Exit Sub
+Case vbYes
+End Select
+Sheet3.Select
+Selection.EntireRow.Delete
+Me.TXTKODEPELANGGAN.Value = ""
+Call MsgBox("Data berhasil dihapus", vbInformation, "Hapus Data")
+Call AmbilPelanggan
+Sheet1.Select
+End If
+
+End Sub
+
+Private Sub CMDDELETE2_Click()
+Application.ScreenUpdating = False
+Dim UpdateMeter As Object
+Set UpdateMeter = Sheet3.Range("B6:B900000").Find(WHAT:=Me.KODEPELANGGAN.Value, LookIn:=xlValues)
+
+Me.TABELPEMAKAIAN.Value = ""
+If Me.TXTKODEPAKAI.Value = "" Then
+Call MsgBox("Pilih data pada tabel data", vbInformation, "Hapus Data")
+Else
+'Membuat pesan konfirmasi hapus data
+Select Case MsgBox("Anda akan menghapus data" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Hapus data")
+Case vbNo
+Me.TXTKODEPAKAI.Value = ""
+Exit Sub
+Case vbYes
+End Select
+Sheet5.Select
+Selection.EntireRow.Delete
+Sheet3.Select
+UpdateMeter.Offset(0, 5).Value = UpdateMeter.Offset(0, 5).Value - Val(Me.TXTPEMAKAIAN.Value)
+
+Me.TXTKODEPAKAI.Value = ""
+Me.TXTPEMAKAIAN.Value = ""
+Me.KODEPELANGGAN.Value = ""
+Call MsgBox("Data berhasil dihapus", vbInformation, "Hapus Data")
+Call AmbilPemakaian
+Call AmbilPelanggan
+Sheet1.Select
+End If
+End Sub
+
+Private Sub CMDDELETE3_Click()
+Application.ScreenUpdating = False
+Dim Status As Object
+Set Status = Sheet3.Range("A6:A800000").Find(WHAT:=Me.TXTKODEBAYAR.Value, LookIn:=xlValues)
+
+Me.TABELTAGIHAN.Value = ""
+If Me.TXTKODEBAYAR.Value = "" Then
+Call MsgBox("Pilih data pada tabel data", vbInformation, "Hapus Data")
+Else
+'Membuat pesan konfirmasi hapus data
+Select Case MsgBox("Anda akan menghapus data" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Hapus data")
+Case vbNo
+Me.TXTKODEBAYAR.Value = ""
+Exit Sub
+Case vbYes
+End Select
+Sheet6.Select
+Status.Offset(0, 8).Value = "Belum Bayar"
+Selection.EntireRow.Delete
+Me.TXTKODEBAYAR.Value = ""
+Call MsgBox("Data berhasil dihapus", vbInformation, "Hapus Data")
+Call AmbilPembayaran
+Sheet1.Select
+End If
+
+End Sub
+
+Private Sub CMDHAPUS_Click()
+Application.ScreenUpdating = False
+Dim HapusData As Object
+Me.TABELLAYANAN.Value = ""
+If Me.TXTHAPUS1.Value = "" Then
+Call MsgBox("Pilih data pada tabel data", vbInformation, "Hapus Data")
+Else
+'Membuat pesan konfirmasi hapus data
+Select Case MsgBox("Anda akan menghapus data" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Hapus data")
+Case vbNo
+Me.TXTHAPUS1.Value = ""
+Exit Sub
+Case vbYes
+End Select
+Sheet2.Select
+Selection.EntireRow.Delete
+Me.TXTHAPUS1.Value = ""
+Call MsgBox("Data berhasil dihapus", vbInformation, "Hapus Data")
+Call AmbilLayanan
+Sheet1.Select
+End If
+End Sub
+
+Private Sub CMDHIDESHOW_Click()
+If Me.CMDHIDESHOW.Caption = "Show" Then
+Me.CMDHIDESHOW.Caption = "Hide"
+Application.Visible = True
+Else
+Me.CMDHIDESHOW.Caption = "Show"
+Application.Visible = False
+End If
+
+End Sub
+
+Private Sub CMDRESET1_Click()
+Me.TXTKODEPELANGGAN.Value = ""
+Me.TABELPELANGGAN.Value = ""
+Me.CMBKRITERIA1.Value = ""
+Me.TXTKATAKUNCI1.Value = ""
+Me.TXTTOTALDATA.Value = ""
+
+Call AmbilPelanggan
+End Sub
+
+Private Sub CMDRESET2_Click()
+Me.TXTKODEPAKAI.Value = ""
+Me.TXTPEMAKAIAN.Value = ""
+Me.KODEPELANGGAN.Value = ""
+Me.TABELPEMAKAIAN.Value = ""
+Me.CMBKRITERIA2.Value = ""
+Me.TXTKATAKUNCI2.Value = ""
+Me.TXTTOTALDATA.Value = ""
+Call AmbilPemakaian
+
+End Sub
+
+Private Sub CMDRESET3_Click()
+Me.TXTKODEBAYAR.Value = ""
+Me.TABELTAGIHAN.Value = ""
+Me.CMBKRITERIA3.Value = ""
+Me.TXTKATAKUNCI3.Value = ""
+Me.TXTTOTALDATA.Value = ""
+
+End Sub
+
+Private Sub CMDSET_Click()
+Sheet1.Range("D5").Value = Me.TXTNAMAKANTOR.Value
+Sheet1.Range("D6").Value = Me.TXTALAMAT.Value
+Sheet1.Range("D7").Value = Me.TXTTELPON.Value
+Sheet1.Range("D8").Value = Me.TXTEMAIL.Value
+Me.TXTNAMAKANTOR.Enabled = False
+Me.TXTALAMAT.Enabled = False
+Me.TXTTELPON.Enabled = False
+Me.TXTEMAIL.Enabled = False
+End Sub
+
+
+Private Sub CMDUPDATE_Click()
+On Error GoTo EXCELVBA
+Dim SUMBERUBAH, CELLAKTIF As String
+With FORMLAYANAN
+
+.TXTNAMA.Value = Me.TABELLAYANAN.Column(1)
+.TXTTARIF.Value = Me.TABELLAYANAN.Column(2)
+FORMLAYANAN.CMDSAVE.Caption = "Update"
+FORMLAYANAN.Show
+End With
+
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, mohon klik pada tabel data", vbInformation, "Pilih Data")
+
+
+End Sub
+
+Private Sub CMDUPDATE1_Click()
+On Error GoTo EXCELVBA
+Dim SUMBERUBAH, CELLAKTIF As String
+With FORMPELANGGAN
+
+.TXTKODE.Value = Me.TABELPELANGGAN.Column(1)
+.TXTNAMA.Value = Me.TABELPELANGGAN.Column(2)
+.CMBLAYANAN.Value = Me.TABELPELANGGAN.Column(3)
+.TXTALAMAT.Value = Me.TABELPELANGGAN.Column(4)
+.TXTTELPON.Value = Me.TABELPELANGGAN.Column(5)
+.TXTMeteran.Value = Me.TABELPELANGGAN.Column(6)
+.CMDSAVE.Enabled = False
+FORMPELANGGAN.Show
+End With
+
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, mohon klik pada tabel data", vbInformation, "Pilih Data")
+
+End Sub
+
+Private Sub CMDUPDATE2_Click()
+On Error GoTo EXCELVBA
+
+With FORMPEMAKAIAN
+.TXTKODE.Value = Me.TABELPEMAKAIAN.Column(1)
+.CMBKODE.Value = Me.TABELPEMAKAIAN.Column(2)
+.TXTNAMA.Value = Me.TABELPEMAKAIAN.Column(3)
+.TXTLAYANAN.Value = Me.TABELPEMAKAIAN.Column(4)
+.CMBBULAN.Value = Me.TABELPEMAKAIAN.Column(5)
+.CMBTAHUN.Value = Me.TABELPEMAKAIAN.Column(6)
+.TXTMETERAWAL.Value = Me.TABELPEMAKAIAN.Column(7)
+.TXTMETERAKHIR.Value = Me.TABELPEMAKAIAN.Column(8)
+.TXTPEMAKAIAN.Value = Me.TABELPEMAKAIAN.Column(9)
+.CMDSAVE.Enabled = False
+FORMPEMAKAIAN.Show
+End With
+
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, mohon klik pada tabel data", vbInformation, "Pilih Data")
+End Sub
+
+Private Sub CommandButton8_Click()
+
+End Sub
+
+Private Sub KELUAR_Click()
+Select Case MsgBox("Anda akan keluar dari aplikasi" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Keluar")
+Case vbNo
+Exit Sub
+Case vbYes
+End Select
+
+Application.Visible = True
+Sheet1.Select
+Unload Me
+
+End Sub
+
+Private Sub LAYANAN_Click()
+FORMLAYANAN.Show
+End Sub
+
+Private Sub LKELUAR_Click()
+Select Case MsgBox("Anda akan keluar dari aplikasi" _
+& vbCrLf & "Apakah anda yakin?" _
+, vbYesNo Or vbQuestion Or vbDefaultButton1, "Keluar")
+Case vbNo
+Exit Sub
+Case vbYes
+End Select
+
+Application.Visible = True
+Sheet1.Select
+Unload Me
+
+End Sub
+
+Private Sub LLAYANAN_Click()
+FORMLAYANAN.Show
+End Sub
+
+Private Sub LPELANGGAN_Click()
+Call KodeInput
+FORMPELANGGAN.Show
+End Sub
+
+Private Sub LPEMAKAIAN_Click()
+Call KodePemakaian
+FORMPEMAKAIAN.Show
+End Sub
+
+Private Sub LSIMPAN_Click()
+ThisWorkbook.Save
+
+End Sub
+
+Private Sub LTAGIHAN_Click()
+On Error GoTo EXCELVBA
+With FORMTAGIHAN
+.TXTKODE.Value = Me.TABELPEMAKAIAN.Column(1)
+.TXTKODEPELANGGAN.Value = Me.TABELPEMAKAIAN.Column(2)
+.TXTNAMA.Value = Me.TABELPEMAKAIAN.Column(3)
+.TXTLAYANAN.Value = Me.TABELPEMAKAIAN.Column(4)
+.TXTBULAN.Value = Me.TABELPEMAKAIAN.Column(5)
+.TXTTAHUN.Value = Me.TABELPEMAKAIAN.Column(6)
+.TXTAWAL.Value = Me.TABELPEMAKAIAN.Column(7)
+.TXTAKHIR.Value = Me.TABELPEMAKAIAN.Column(8)
+.TXTPEMAKAIAN.Value = Me.TABELPEMAKAIAN.Column(9)
+.TXTHARGA.Value = Me.TABELPEMAKAIAN.Column(10)
+.TXTTOTALBAYAR.Value = Me.TABELPEMAKAIAN.Column(11)
+.TXTSTATUS.Value = Me.TABELPEMAKAIAN.Column(12)
+FORMTAGIHAN.Show
+End With
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, Mohon klik terlebih dahulu pada data pemakaian", vbInformation, "Pilih Data")
+End Sub
+
+Private Sub MENU_Click()
+If Me.PANELMENU.Width = 162 Then
+Me.PANELMENU.Width = 48
+Me.PANELINSTANSI.Left = Me.PANELMENU.Width + 2
+Me.PANELDATA.Left = Me.PANELMENU.Width + Me.PANELINSTANSI.Width + 10
+Me.PANELDATA.Width = Me.Width - Me.PANELINSTANSI.Width - Me.PANELMENU.Width - 30
+Me.MultiPage1.Width = Me.PANELDATA.Width
+Me.TABELPELANGGAN.Width = Me.MultiPage1.Width - 5
+Me.TABELPEMAKAIAN.Width = Me.MultiPage1.Width - 5
+Me.TABELTAGIHAN.Width = Me.MultiPage1.Width - 5
+Me.TXTTOTALDATA.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+Me.LBTOTAL.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+Else
+Me.PANELMENU.Width = 162
+Me.PANELINSTANSI.Left = Me.PANELMENU.Width + 2
+Me.PANELDATA.Left = Me.PANELMENU.Width + Me.PANELINSTANSI.Width + 10
+Me.PANELDATA.Width = Me.Width - Me.PANELINSTANSI.Width - Me.PANELMENU.Width - 30
+Me.MultiPage1.Width = Me.PANELDATA.Width
+Me.TABELPELANGGAN.Width = Me.MultiPage1.Width - 5
+Me.TABELPEMAKAIAN.Width = Me.MultiPage1.Width - 5
+Me.TABELTAGIHAN.Width = Me.MultiPage1.Width - 5
+Me.TXTTOTALDATA.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+Me.LBTOTAL.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+End If
+End Sub
+Private Sub PELANGGAN_Click()
+Call KodeInput
+FORMPELANGGAN.Show
+End Sub
+Private Sub KodeInput()
+On Error GoTo Salah
+Sheet3.Range("F3").Value = Sheet3.Range("F3").Value + 1
+If Sheet3.Range("F2").Value = 1 Then
+FORMPELANGGAN.TXTKODE.Value = "PL-10000" & Sheet3.Range("F3").Value
+End If
+If Sheet3.Range("F2").Value = 2 Then
+FORMPELANGGAN.TXTKODE.Value = "PL-1000" & Sheet3.Range("F3").Value
+End If
+If Sheet3.Range("F2").Value = 3 Then
+FORMPELANGGAN.TXTKODE.Value = "PL-100" & Sheet3.Range("F3").Value
+End If
+If Sheet3.Range("F2").Value = 4 Then
+FORMPELANGGAN.TXTKODE.Value = "PL-10" & Sheet3.Range("F3").Value
+End If
+FORMPELANGGAN.TXTKODE.Enabled = False
+Exit Sub
+Salah:
+Call MsgBox("Ada kesalahan isi data pada Cell J4 atau I4 di Sheet DataLahir", vbInformation, "Kode Lahir")
+
+End Sub
+
+
+Private Sub PEMAKAIAN_Click()
+Call KodePemakaian
+FORMPEMAKAIAN.Show
+End Sub
+Private Sub KodePemakaian()
+Sheet5.Range("J3").Value = Sheet5.Range("J3").Value + 1
+If Sheet5.Range("J2").Value = 1 Then
+FORMPEMAKAIAN.TXTKODE.Value = "PM-10000" & Sheet5.Range("J3").Value
+End If
+If Sheet5.Range("J2").Value = 2 Then
+FORMPEMAKAIAN.TXTKODE.Value = "PM-1000" & Sheet5.Range("J3").Value
+End If
+If Sheet5.Range("J2").Value = 3 Then
+FORMPEMAKAIAN.TXTKODE.Value = "PM-100" & Sheet5.Range("J3").Value
+End If
+If Sheet5.Range("J2").Value = 4 Then
+FORMPEMAKAIAN.TXTKODE.Value = "PM-10" & Sheet5.Range("J3").Value
+End If
+FORMPEMAKAIAN.TXTKODE.Enabled = False
+End Sub
+
+Private Sub SIMPAN_Click()
+ThisWorkbook.Save
+
+End Sub
+
+Private Sub TABELLAYANAN_Click()
+Application.ScreenUpdating = False
+Dim SUMBERUBAH As String
+Dim CELLAKTIF As String
+Me.TXTHAPUS1.Value = Me.TABELLAYANAN.Value
+Sheet2.Select
+SUMBERUBAH = Sheets("LAYANAN").Cells(Rows.Count, "A").End(xlUp).Row
+Sheets("LAYANAN").Range("A6:A" & SUMBERUBAH).Find(WHAT:=Me.TXTHAPUS1.Value, LookIn:=xlValues, LookAt:=xlWhole).Activate
+CELLAKTIF = ActiveCell.Row
+Sheet1.Select
+End Sub
+
+Private Sub TABELPELANGGAN_Click()
+On Error Resume Next
+Application.ScreenUpdating = False
+Dim SUMBERUBAH As String
+Dim CELLAKTIF As String
+Me.TXTKODEPELANGGAN.Value = Me.TABELPELANGGAN.Value
+Sheet3.Select
+SUMBERUBAH = Sheets("PELANGGAN").Cells(Rows.Count, "A").End(xlUp).Row
+Sheets("PELANGGAN").Range("A6:A" & SUMBERUBAH).Find(WHAT:=Me.TXTKODEPELANGGAN.Value, LookIn:=xlValues, LookAt:=xlWhole).Activate
+CELLAKTIF = ActiveCell.Row
+End Sub
+
+Private Sub TABELPEMAKAIAN_Click()
+Application.ScreenUpdating = False
+Dim SUMBERUBAH As String
+Dim CELLAKTIF As String
+Me.TXTKODEPAKAI.Value = Me.TABELPEMAKAIAN.Value
+Me.TXTPEMAKAIAN.Value = Me.TABELPEMAKAIAN.Column(9)
+Me.KODEPELANGGAN.Value = Me.TABELPEMAKAIAN.Column(2)
+
+Sheet5.Select
+SUMBERUBAH = Sheets("PEMAKAIAN").Cells(Rows.Count, "A").End(xlUp).Row
+Sheets("PEMAKAIAN").Range("A6:A" & SUMBERUBAH).Find(WHAT:=Me.TXTKODEPAKAI.Value, LookIn:=xlValues, LookAt:=xlWhole).Activate
+CELLAKTIF = ActiveCell.Row
+End Sub
+
+Private Sub TABELTAGIHAN_Click()
+Application.ScreenUpdating = False
+Dim SUMBERUBAH As String
+Dim CELLAKTIF As String
+Me.TXTKODEBAYAR.Value = Me.TABELTAGIHAN.Value
+
+Sheet6.Select
+SUMBERUBAH = Sheets("TAGIHAN").Cells(Rows.Count, "A").End(xlUp).Row
+Sheets("TAGIHAN").Range("A6:A" & SUMBERUBAH).Find(WHAT:=Me.TXTKODEBAYAR.Value, LookIn:=xlValues, LookAt:=xlWhole).Activate
+CELLAKTIF = ActiveCell.Row
+End Sub
+
+Private Sub TAGIHAN_Click()
+On Error GoTo EXCELVBA
+With FORMTAGIHAN
+.TXTKODE.Value = Me.TABELPEMAKAIAN.Column(1)
+.TXTKODEPELANGGAN.Value = Me.TABELPEMAKAIAN.Column(2)
+.TXTNAMA.Value = Me.TABELPEMAKAIAN.Column(3)
+.TXTLAYANAN.Value = Me.TABELPEMAKAIAN.Column(4)
+.TXTBULAN.Value = Me.TABELPEMAKAIAN.Column(5)
+.TXTTAHUN.Value = Me.TABELPEMAKAIAN.Column(6)
+.TXTAWAL.Value = Me.TABELPEMAKAIAN.Column(7)
+.TXTAKHIR.Value = Me.TABELPEMAKAIAN.Column(8)
+.TXTPEMAKAIAN.Value = Me.TABELPEMAKAIAN.Column(9)
+.TXTHARGA.Value = Me.TABELPEMAKAIAN.Column(10)
+.TXTTOTALBAYAR.Value = Me.TABELPEMAKAIAN.Column(11)
+.TXTSTATUS.Value = Me.TABELPEMAKAIAN.Column(12)
+FORMTAGIHAN.Show
+End With
+Exit Sub
+EXCELVBA:
+Call MsgBox("Maaf, Mohon klik terlebih dahulu pada data pemakaian", vbInformation, "Pilih Data")
+
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+If CloseMode = 0 Then
+Cancel = True
+End If
+End Sub
+
+Private Sub UserForm_Initialize()
+Me.PANELINSTANSI.Height = Me.Height
+Me.PANELMENU.BackColor = RGB(62, 32, 147)
+Me.PANELMENU.Width = 48
+Me.PANELINSTANSI.Left = Me.PANELMENU.Width + 2
+Me.PANELMENU.Height = Me.Height
+Me.PANELDATA.Left = Me.PANELMENU.Width + Me.PANELINSTANSI.Width + 10
+Me.PANELDATA.Width = Me.Width - Me.PANELINSTANSI.Width - Me.PANELMENU.Width - 30
+Me.MultiPage1.Width = Me.PANELDATA.Width
+Me.TABELPELANGGAN.Width = Me.MultiPage1.Width - 5
+Me.TABELPEMAKAIAN.Width = Me.MultiPage1.Width - 5
+Me.TABELTAGIHAN.Width = Me.MultiPage1.Width - 5
+Me.TXTTOTALDATA.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+Me.LBTOTAL.Left = Me.TABELPELANGGAN.Width - Me.TXTTOTALDATA.Width + 5
+Me.CMDHIDESHOW.Caption = "Hide"
+
+With CMBKRITERIA1
+.AddItem "Kode"
+.AddItem "Nama Pelanggan"
+.AddItem "Layanan"
+.AddItem "Alamat"
+End With
+With CMBKRITERIA2
+.AddItem "ID Transaksi"
+.AddItem "Id Pelanggan"
+.AddItem "Nama Pelanggan"
+.AddItem "Layanan"
+.AddItem "Bulan"
+.AddItem "Tahun"
+.AddItem "Keterangan"
+End With
+With CMBKRITERIA3
+.AddItem "ID Transaksi"
+.AddItem "Id Pelanggan"
+.AddItem "Nama Pelanggan"
+.AddItem "Layanan"
+End With
+
+Call DataKantor
+Call AmbilLayanan
+Call AmbilPelanggan
+Call AmbilPemakaian
+Call AmbilPembayaran
+End Sub
+Private Sub AmbilLayanan()
+Dim DbLayanan As Long
+Dim iRow As Long
+iRow = Sheet2.Range("A" & Rows.Count).End(xlUp).Row
+DbLayanan = Application.WorksheetFunction.CountA(Sheet2.Range("A6:A90000"))
+If DbLayanan = 0 Then
+FORMUTAMA.TABELLAYANAN.RowSource = ""
+Else
+FORMUTAMA.TABELLAYANAN.RowSource = "LAYANAN!A6:C" & iRow
+End If
+End Sub
+
+Private Sub DataKantor()
+Me.TXTNAMAKANTOR.Value = Sheet1.Range("D5").Value
+Me.TXTALAMAT.Value = Sheet1.Range("D6").Value
+Me.TXTTELPON.Value = Sheet1.Range("D7").Value
+Me.TXTEMAIL.Value = Sheet1.Range("D8").Value
+Me.TXTNAMAKANTOR.Enabled = False
+Me.TXTALAMAT.Enabled = False
+Me.TXTTELPON.Enabled = False
+Me.TXTEMAIL.Enabled = False
+End Sub
+Private Sub AmbilPelanggan()
+Dim DbPelanggan As Long
+Dim iRow As Long
+iRow = Sheet3.Range("A" & Rows.Count).End(xlUp).Row
+DbPelanggan = Application.WorksheetFunction.CountA(Sheet3.Range("A6:A90000"))
+If DbPelanggan = 0 Then
+FORMUTAMA.TABELPELANGGAN.RowSource = ""
+Else
+FORMUTAMA.TABELPELANGGAN.RowSource = "PELANGGAN!A6:G" & iRow
+End If
+Me.TPL.Caption = Sheet1.Range("D9").Value
+Me.TTGH.Caption = Sheet1.Range("D10").Value
+Me.TPMB.Caption = Sheet1.Range("D11").Value
+Me.TPMA.Caption = Sheet1.Range("D12").Value
+Me.TPM.Caption = Sheet1.Range("D13").Value
+End Sub
+Private Sub AmbilPemakaian()
+Dim DbPmakaian As Long
+Dim iRow As Long
+iRow = Sheet5.Range("A" & Rows.Count).End(xlUp).Row
+DbPmakaian = Application.WorksheetFunction.CountA(Sheet5.Range("A6:A90000"))
+If DbPmakaian = 0 Then
+FORMUTAMA.TABELPEMAKAIAN.RowSource = ""
+Else
+FORMUTAMA.TABELPEMAKAIAN.RowSource = "PEMAKAIAN!A6:M" & iRow
+End If
+Me.TPL.Caption = Sheet1.Range("D9").Value
+Me.TTGH.Caption = Sheet1.Range("D10").Value
+Me.TPMB.Caption = Sheet1.Range("D11").Value
+Me.TPMA.Caption = Sheet1.Range("D12").Value
+Me.TPM.Caption = Sheet1.Range("D13").Value
+End Sub
+Private Sub AmbilPembayaran()
+Dim DbBayar As Long
+Dim iRow As Long
+iRow = Sheet6.Range("A" & Rows.Count).End(xlUp).Row
+DbBayar = Application.WorksheetFunction.CountA(Sheet6.Range("B6:B90000"))
+If DbBayar = 0 Then
+FORMUTAMA.TABELTAGIHAN.RowSource = ""
+Else
+FORMUTAMA.TABELTAGIHAN.RowSource = "TAGIHAN!A6:J" & iRow
+End If
+End Sub
